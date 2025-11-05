@@ -19,6 +19,8 @@ jobs:
   create-server:
     name: Launch test runner
     runs-on: ubuntu-latest
+    container:
+      image: geerlingguy/docker-ubuntu2404-ansible
     steps:
       - uses: actions/checkout@v4
         with:
