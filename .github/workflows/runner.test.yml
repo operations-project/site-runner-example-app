@@ -45,4 +45,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: cp .github/workflows/ansible-hosts /etc/ansible/hosts
-      - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${{ secrets.OPERATIONS_GITHUB_API_TOKEN }}
+      - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${GITHUB_TOKEN}
