@@ -43,10 +43,9 @@ jobs:
     name: Configure server
     runs-on: github.actions.runner.${{ github.run_id }}
     container:
-      image: geerlingguy/docker-rockylinux10-ansible
+      image: geerlingguy/docker-ubuntu2404-ansible
     steps:
       - uses: actions/checkout@v4
-        with: 
-          submodules: true
+      - run: git submodule init && git submodule update
       - run: cp .github/workflows/ansible-hosts /etc/ansible/hosts
       - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${GITHUB_TOKEN}
