@@ -1,0 +1,48 @@
+#
+name: Test server config
+on:
+  pull_request:
+
+env:
+  # This example creates github runners for each subsequent job.
+  # To do so, it needs a GitHub token with admin:write permissions.
+  # Create a personal access token with admin:write permissions on the repository you wish to deploy.
+  GITHUB_TOKEN: "${{ secrets.OPERATIONS_GITHUB_TOKEN_ADMIN }}"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: false
+
+jobs:
+  # This emulates a persistent server. The ddev.site.deploy.yml jobs require one.
+  # This job runs the rest. It will stay running until the last job is complete.
+  create-server:
+    name: Launch test runner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'operations-project/github-runner-starter'
+          ref: 'v1.2.1'
+
+      # Kick off the runner script over and over until there are no more queued jobs.
+      - name: "Launch runner script."
+
+        run: |
+          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
+            sleep 2
+            ./github-runner-starter \
+            --run \
+            --name=github.actions.runner.${{ github.run_id }}.${{ matrix.runner }} \
+            --labels=github.actions.runner.${{ github.run_id }} \
+            --config-sh-options=--ephemeral
+            sleep 2
+          done
+
+  configure-server:
+    name: Configure server
+    runs-on: github.actions.runner.${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .github/workflows/ansible-hosts /etc/ansible/hosts
+      - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${{ secrets.OPERATIONS_GITHUB_API_TOKEN }}
