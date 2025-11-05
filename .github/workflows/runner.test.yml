@@ -43,7 +43,7 @@ jobs:
     name: Configure server
     runs-on: github.actions.runner.${{ github.run_id }}
     container:
-      image: geerlingguy/docker-ubuntu2404-ansible
+      image: geerlingguy/docker-rockylinux10-ansible
     steps:
       - uses: actions/checkout@v4
         with: 
