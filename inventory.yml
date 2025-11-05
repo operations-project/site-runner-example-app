@@ -1,0 +1,7 @@
+# See example https://github.com/operations-project/ansible-collection-site-runner/blob/main/ansible/host_vars/host.example.yml
+all:
+  vars:
+    operations_admin_users:
+    # Put your github usernames here.
+    # - jonpugh
+

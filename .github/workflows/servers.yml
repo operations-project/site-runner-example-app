@@ -1,0 +1,11 @@
+jobs:
+  playbook:
+    runs-on: "control@server.mydomain.com"
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
+      - name: Run playbook
+        run: |
+          ansible-playbook --connection local --limit control@server.mydomain.com --extra-vars operations_github_api_token=${{ secrets.GITHUB_TOKEN_RUNNER_ADMIN }} site-runner/playbook.yml
