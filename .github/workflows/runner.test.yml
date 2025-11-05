@@ -46,5 +46,7 @@ jobs:
       image: geerlingguy/docker-ubuntu2404-ansible
     steps:
       - uses: actions/checkout@v4
+        with: 
+          submodules: true
       - run: cp .github/workflows/ansible-hosts /etc/ansible/hosts
       - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${GITHUB_TOKEN}
