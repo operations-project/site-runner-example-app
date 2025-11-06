@@ -1,9 +1,13 @@
 #
+# site-runner.test.yml
+# This workflow allows you to test your server config in a container.
+# Use it for testing out changes to your Ansible inventory or Roles. 
+#
 name: Test server config
 on:
   pull_request:
 
-env:
+env: 
   # This example creates github runners for each subsequent job.
   # To do so, it needs a GitHub token with admin:write permissions.
   # Create a personal access token with admin:write permissions on the repository you wish to deploy.
@@ -45,11 +49,19 @@ jobs:
     container:
 
       # Test on your OS of choice.
-      image: geerlingguy/docker-ubuntu2404-ansible
+      # Jeff's images have ansible pre-installed: https://hub.docker.com/u/geerlingguy
+      # Using rockylinux8 here to match the tests from site runner ansible role: https://github.com/operations-project/ansible-collection-site-runner/blob/main/Dockerfile
+      image: geerlingguy/docker-rockylinux8-ansible
+      
     steps:
-      - run: apt-get update && apt-get install -y git
+      - run: |
+          yum -y install git
+          chmod 0400 /etc/shadow
+          
       - uses: actions/checkout@v4
         with: 
           submodules: recursive
+
+      # Server hostname is stored here.
       - run: cp .github/workflows/ansible-hosts /etc/ansible/hosts
       - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${GITHUB_TOKEN}
