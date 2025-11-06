@@ -52,12 +52,9 @@ jobs:
       - name: Playbook
         run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
-      # We're only doing this in github actions container. On your own server, do this manually or use a GitHub variable to set it.
       - name: Set known hosts.
         run: |
-          docker compose exec -u platform operations "mkdir -p /var/platform/.ssh"
-          docker compose exec -u platform operations "ssh-keyscan -H github.com >> /var/platform/.ssh/known_hosts"
-          docker compose exec -u platform operations "chmod 600 /var/platform/.ssh/known_hosts"
+          echo "operations_known_hosts: \"${ secrets.SSH_KNOWN_HOSTS }}\"" > vars.ci.yml
 
       - name: "Wait for all jobs to complete."
         run: |
