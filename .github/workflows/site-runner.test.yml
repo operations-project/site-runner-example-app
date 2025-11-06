@@ -29,6 +29,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT_JSON: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT_JSON"
+
       - uses: jonpugh/goatscripts@v1
       - name: Install docker-compose
         uses: KengoTODA/actions-setup-docker-compose@v1
@@ -60,7 +66,7 @@ jobs:
         env: 
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
-          JOB_ID: ${{ github.job }}
+          JOB_ID: ${{ github.run_job_id }}
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
 
         run: |
