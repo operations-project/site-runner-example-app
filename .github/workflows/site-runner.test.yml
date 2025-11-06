@@ -50,7 +50,7 @@ jobs:
           SUCCESS: "Ansible inventory"
           
       - name: Playbook
-        run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
+        run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} --extra-vars vars.ci.yml
 
       - name: Set known hosts.
         run: |
