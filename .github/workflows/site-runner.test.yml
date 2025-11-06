@@ -39,9 +39,9 @@ jobs:
           docker-compose exec operations chmod 0400 /etc/shadow
 
       - name: Inventory
-        run: docker compose exec operations ansible-playbook site-runner/playbook.yml --list-hosts
+        run: docker compose exec operations ansible-playbook ansible/site-runner/playbook.yml --list-hosts
         env: 
           SUCCESS: "Ansible inventory"
           
       - name: Playbook
-        run: docker compose exec operations ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=$GITHUB_TOKEN
+        run: docker compose exec operations ansible-playbook ansible/site-runner/playbook.yml --extra-vars operations_github_api_token=$GITHUB_TOKEN
