@@ -35,11 +35,11 @@ jobs:
 
       - name: Start Container
         run: |
-          docker compose up -d
+          docker compose up -d --quiet-pull
           docker-compose exec operations chmod 0400 /etc/shadow
 
       - name: Inventory
-        run: run-with-summary docker compose exec operations ansible-playbook site-runner/playbook.yml
+        run: docker compose exec operations ansible-playbook site-runner/playbook.yml
         env: 
           SUCCESS: "Ansible inventory"
           
