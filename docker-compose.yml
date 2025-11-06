@@ -7,8 +7,9 @@ services:
     cgroup: host
     cgroup_parent: docker.slice
     privileged: true
+    working_dir: /app
     volumes:
-      - ./:/usr/share/operations
+      - ./:/app
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - ./ansible:/etc/ansible
     env_file:
