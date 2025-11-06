@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Configuration
+GITHUB_TOKEN="$GITHUB_TOKEN" # Replace with your GitHub Personal Access Token
+REPO="$REPO" # Replace with your repository name
+RUN_ID="$RUN_ID" # Replace with the specific workflow run ID
+INTERVAL_SECONDS=10 # How often to check the status
+
+# Function to get workflow run status
+get_workflow_run_status() {
+  curl -s -H "Authorization: token $GITHUB_TOKEN" \
+       "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID" | \
+       jq -r '.status'
+}
+
+echo "Waiting for GitHub Actions workflow run $RUN_ID to complete..."
+
+while true; do
+  STATUS=$(get_workflow_run_status)
+  echo "Current status: $STATUS"
+
+  case "$STATUS" in
+    "completed")
+      echo "Workflow run $RUN_ID completed."
+      exit 0
+      ;;
+    "queued"|"in_progress"|"waiting"|"requested"|"pending")
+      echo "Workflow run $RUN_ID is still $STATUS. Waiting..."
+      sleep $INTERVAL_SECONDS
+      ;;
+    *)
+      echo "Unexpected status: $STATUS. Exiting."
+      exit 1
+      ;;
+  esac
+done
