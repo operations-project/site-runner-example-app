@@ -1,0 +1,7 @@
+
+# Put your github usernames here.
+# Each one will get a user with ssh and sudo acccess.
+
+operations_admin_users:
+  # - jonpugh
+
