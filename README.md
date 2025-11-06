@@ -34,7 +34,7 @@ To set this up for your own host, just copy this repo and change the following f
 
 Set the secret variable `operations_github_api_token` to the GitHub token using your preferred secrets management tools.
 
-For example, to use github secrets, you can pass it on the command line:
+For example, to use github secrets, you can pass it on the command line in your workflow file:
 ```
 ansible-playbook --extra-vars operations_github_api_token=${{ secrets.REPO_ADMIN_TOKEN }}
 ```
