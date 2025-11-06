@@ -4,7 +4,7 @@
 GITHUB_TOKEN="$GITHUB_TOKEN" # Your GitHub Personal Access Token (from env)
 REPO="$REPO"         # Your repository name (from env)
 RUN_ID="$RUN_ID"       # The specific workflow run ID (from env)
-JOB_ID="$JOB_ID"         # The *current* job's ID (from env)
+JOB_ID="$JOB_ID"         # The *current* job's name (from env)
 INTERVAL_SECONDS=10    # How often to check the status
 
 # Function to get *overall* workflow run status
@@ -25,12 +25,14 @@ check_other_jobs_status() {
   non_completed_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
                            -H "Accept: application/vnd.github.v3+json" \
                            "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/jobs" | \
-                           jq --argjson jid "$JOB_ID" '
+                           jq --arg jid "$JOB_ID" '
                              .jobs | map(
                                # Select jobs that are NOT the current job AND are NOT completed
-                               select(.id != $jid and .status != "completed")
+                               select(.name != $jid and .status != "completed")
                              ) | length
                            ')
+                           
+  # Note: I changed --argjson to --arg for string comparison
 
   if [ -z "$non_completed_count" ]; then
     echo "Error: Could not parse job statuses. Check JOB_ID ($JOB_ID) and API response."
