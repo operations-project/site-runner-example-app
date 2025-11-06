@@ -18,50 +18,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # This emulates a persistent server. The ddev.site.deploy.yml jobs require one.
-  # This job runs the rest. It will stay running until the last job is complete.
-  create-server:
-    name: Launch test runner
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: 'operations-project/github-runner-starter'
-          ref: 'v1.2.1'
-
-      # Kick off the runner script over and over until there are no more queued jobs.
-      - name: "Launch runner script."
-
-        run: |
-          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
-            sleep 2
-            ./github-runner-starter \
-            --run \
-            --name=github.actions.runner.${{ github.run_id }}.${{ matrix.runner }} \
-            --labels=github.actions.runner.${{ github.run_id }} \
-            --config-sh-options=--ephemeral
-            sleep 2
-          done
-
   configure-server:
-    name: Configure server
-    runs-on: github.actions.runner.${{ github.run_id }}
-    container:
+    name: Run Playbook
+    runs-on: ubuntu-latest
 
-      # Test on your OS of choice.
-      # Jeff's images have ansible pre-installed: https://hub.docker.com/u/geerlingguy
-      # Using rockylinux8 here to match the tests from site runner ansible role: https://github.com/operations-project/ansible-collection-site-runner/blob/main/Dockerfile
-      image: geerlingguy/docker-rockylinux8-ansible
-      
     steps:
-      - run: |
-          yum -y install git
-          chmod 0400 /etc/shadow
-          
-      - uses: actions/checkout@v4
-        with: 
-          submodules: recursive
+      - uses: jonpugh/goatscripts@v1
+      - name: Install docker-compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.24.0'
 
-      # Server hostname is stored here.
-      - run: cp .github/workflows/ansible-hosts /etc/ansible/hosts
-      - run: ansible-playbook site-runner/playbook.yml --extra-vars operations_github_api_token=${GITHUB_TOKEN}
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Start Container
+        run: |
+          docker compose up -d
+          docker-compose exec operations chmod 0400 /etc/shadow
+
+      - name: Inventory
+        run: run-with-summary docker compose exec operations ansible-playbook site-runner/playbook.yml
+        env: 
+          SUCCESS: "Ansible inventory"
+          
