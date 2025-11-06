@@ -11,7 +11,7 @@ env:
   # This example creates github runners for each subsequent job.
   # To do so, it needs a GitHub token with admin:write permissions.
   # Create a personal access token with admin:write permissions on the repository you wish to deploy.
-  GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
+  RUNNER_GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
 
   # The playbook to run.
   # You can use the one included in the site-runn ansible roles or make your own.
@@ -50,7 +50,7 @@ jobs:
           SUCCESS: "Ansible inventory"
           
       - name: Playbook
-        run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=$GITHUB_TOKEN
+        run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
       - uses: actions/checkout@v4
         with:
