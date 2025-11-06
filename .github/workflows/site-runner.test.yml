@@ -17,6 +17,7 @@ env:
   # You can use the one included in the site-runn ansible roles or make your own.
   # ANSIBLE_PLAYBOOK: ansible/site-runner/playbook.yml
   ANSIBLE_PLAYBOOK: ansible/playbook.example.yml
+  RUNNER_NAME: platform@server.mysite.com
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
@@ -50,3 +51,14 @@ jobs:
           
       - name: Playbook
         run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=$GITHUB_TOKEN
+
+      - uses: actions/checkout@v4
+        with:
+          repository: 'operations-project/github-runner-starter'
+          ref: 'v1.2.1'
+
+      - name: "Wait for all jobs to complete."
+        run: |
+          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
+            sleep 3
+          done
