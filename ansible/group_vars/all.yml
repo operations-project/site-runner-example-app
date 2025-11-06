@@ -3,5 +3,5 @@
 # Each one will get a user with ssh and sudo acccess.
 
 operations_admin_users:
-  # - jonpugh
+  - jonpugh
 
