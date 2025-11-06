@@ -52,10 +52,9 @@ jobs:
       - name: Playbook
         run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
-      - uses: actions/checkout@v4
-        with:
-          repository: 'operations-project/github-runner-starter'
-          ref: 'v1.2.1'
+      # We're only doing this in github actions container. On your own server, do this manually or use a GitHub variable to set it.
+      - name: Set known hosts.
+        run: docker compose exec -u platform operations "ssh-keyscan -H github.com >> ~/.ssh/known_hosts"
 
       - name: "Wait for all jobs to complete."
         run: |
