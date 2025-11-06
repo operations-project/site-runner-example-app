@@ -1,0 +1,45 @@
+#
+# site-runner.test.yml
+# This workflow allows you to test your server config in a container.
+# Use it for testing out changes to your Ansible inventory or Roles. 
+#
+name: Test server config
+on:
+  pull_request:
+
+env: 
+  # This example creates github runners for each subsequent job.
+  # To do so, it needs a GitHub token with admin:write permissions.
+  # Create a personal access token with admin:write permissions on the repository you wish to deploy.
+  GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: false
+
+jobs:
+  configure-server:
+    name: Run Playbook
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: jonpugh/goatscripts@v1
+      - name: Install docker-compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.24.0'
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Start Container
+        run: |
+          docker compose up -d --quiet-pull
+          docker-compose exec operations chmod 0400 /etc/shadow
+
+      - name: Inventory
+        run: docker compose exec operations ansible-playbook site-runner/playbook.yml
+        env: 
+          SUCCESS: "Ansible inventory"
+          
