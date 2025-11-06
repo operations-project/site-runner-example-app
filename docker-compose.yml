@@ -1,0 +1,16 @@
+# For testing and development.
+
+---
+services:
+  operations:
+    image: geerlingguy/docker-${MOLECULE_DISTRO:-rockylinux8}-ansible:latest
+    cgroup: host
+    cgroup_parent: docker.slice
+    privileged: true
+    volumes:
+      - ./:/usr/share/operations
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - ./ansible:/etc/ansible
+    env_file:
+      - .env
+    build: ./
