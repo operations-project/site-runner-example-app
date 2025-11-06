@@ -3,7 +3,7 @@
 # This workflow allows you to test your server config in a container.
 # Use it for testing out changes to your Ansible inventory or Roles. 
 #
-name: Test server config
+name: Server Config Test
 on:
   pull_request:
 
@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   configure-server:
-    name: Run Playbook
+    name: Prepare server
     runs-on: ubuntu-latest
 
     steps:
