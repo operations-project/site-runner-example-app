@@ -66,11 +66,12 @@ jobs:
         env: 
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
-          JOB_ID: ${{ github.job }}
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_GITHUB_TOKEN }}
+          ATTEMPT: ${{ github.run_attempt }}
+          JOB_NAME: ${{ github.job }}
 
         run: |
-          ./scripts/wait-for-no-jobs
+          gh api /repos/$REPO/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs \
+            -q ".jobs[] | select(.name != \"$JOB_NAME\") | select(.status != \"completed\") | .status"
     
   create-site:
     name: Create Preview Site
