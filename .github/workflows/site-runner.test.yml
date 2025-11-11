@@ -30,10 +30,13 @@ jobs:
 
     steps:
     
-      - name: Dump GitHub context
+      - name: GitHub context
         env:
           GITHUB_CONTEXT_JSON: ${{ toJSON(github) }}
         run: echo "$GITHUB_CONTEXT_JSON"
+
+      - name: GitHub Environment
+        run: env | grep GITHUB_
 
       - uses: jonpugh/goatscripts@v1
       - name: Install docker-compose
