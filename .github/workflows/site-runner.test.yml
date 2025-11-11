@@ -73,8 +73,8 @@ jobs:
           JOB_NAME: ${{ github.job }}
 
         run: |
-          gh api /repos/$REPO/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs \
-            -q ".jobs[] | select(.name != \"$JOB_NAME\") | select(.status != \"completed\") | .status"
+          wait-for gh api /repos/$REPO/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs \
+            | jq -e ".jobs[] | select(.name != \"$JOB_NAME\") | select(.status != \"completed\") | .status"
     
   create-site:
     name: Create Preview Site
