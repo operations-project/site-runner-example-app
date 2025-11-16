@@ -39,6 +39,12 @@ jobs:
         run: env | grep GITHUB_
 
       - uses: jonpugh/goatscripts@main
+
+      - name: Debug
+        run: |
+          ls -la .goatscripts/src
+          run-with-summary wait-for sleep 5
+
       - name: Install docker-compose
         uses: KengoTODA/actions-setup-docker-compose@v1
         with:
