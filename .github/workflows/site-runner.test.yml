@@ -38,7 +38,7 @@ jobs:
       - name: GitHub Environment
         run: env | grep GITHUB_
 
-      - uses: jonpugh/goatscripts@v1
+      - uses: jonpugh/goatscripts@main
       - name: Install docker-compose
         uses: KengoTODA/actions-setup-docker-compose@v1
         with:
