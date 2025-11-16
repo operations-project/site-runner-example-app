@@ -60,12 +60,17 @@ jobs:
           docker-compose exec operations chmod 0400 /etc/shadow
 
       - name: Inventory
-        run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
+        run: run-with-summary docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
         env: 
           SUCCESS: "Ansible inventory"
+          ERROR: "Ansible inventory list failed"
+          HIDE: true
           
       - name: Playbook
-        run: docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} --extra-vars vars.ci.yml
+        env:
+          SUCCESS: "Ansible playbook completed successfully."
+          ERROR: "Ansible playbook failed!"
+        run: run-with-summary docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} --extra-vars vars.ci.yml
 
       - name: Set known hosts.
         run: |
