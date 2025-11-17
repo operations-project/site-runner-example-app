@@ -29,7 +29,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: jonpugh/goatscripts@main
+
       - name: GitHub context
         env:
           GITHUB_CONTEXT_JSON: ${{ toJSON(github) }}
@@ -38,21 +44,10 @@ jobs:
       - name: GitHub Environment
         run: env | grep GITHUB_
 
-      - uses: jonpugh/goatscripts@main
-
-      - name: Debug
-        run: |
-          ls -la .goatscripts/src
-          run-with-summary wait-for sleep 5
-
       - name: Install docker-compose
         uses: KengoTODA/actions-setup-docker-compose@v1
         with:
           version: '2.24.0'
-
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - name: Start Container
         run: |
