@@ -77,7 +77,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           ATTEMPT: ${{ github.run_attempt }}
           JOB_NAME: ${{ github.job }}
-
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api /repos/$REPO/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs \
             | jq -e ".jobs[] | select(.name != \"$JOB_NAME\") | select(.status != \"completed\") | .status"
