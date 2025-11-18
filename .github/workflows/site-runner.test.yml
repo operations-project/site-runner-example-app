@@ -78,6 +78,7 @@ jobs:
           ATTEMPT: ${{ github.run_attempt }}
           JOB_NAME: ${{ github.job }}
           GH_TOKEN: ${{ github.token }}
+          OUTPUT: all
         run: |
           wait-for ./scripts/jobs-done
     
