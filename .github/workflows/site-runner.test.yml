@@ -70,6 +70,7 @@ jobs:
       - name: Set known hosts.
         run: |
           echo "operations_known_hosts: \"${{ secrets.SSH_KNOWN_HOSTS }}\"" > vars.ci.yml
+          cat vars.ci.yml
 
       - name: "Wait for all jobs to complete."
         env: 
