@@ -54,6 +54,11 @@ jobs:
           docker compose up -d --quiet-pull
           docker-compose exec operations chmod 0400 /etc/shadow
 
+      - name: Set ansible variables
+        run: |
+          echo "operations_known_hosts: \"${{ secrets.SSH_KNOWN_HOSTS }}\"" > vars.ci.yml
+          cat vars.ci.yml
+
       - name: Inventory
         run: run-with-summary docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
         env: 
@@ -66,11 +71,6 @@ jobs:
           SUCCESS: "Ansible playbook completed successfully."
           ERROR: "Ansible playbook failed!"
         run: run-with-summary docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} --extra-vars vars.ci.yml
-
-      - name: Set known hosts.
-        run: |
-          echo "operations_known_hosts: \"${{ secrets.SSH_KNOWN_HOSTS }}\"" > vars.ci.yml
-          cat vars.ci.yml
 
       - name: "Wait for all jobs to complete."
         env: 
