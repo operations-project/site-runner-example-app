@@ -70,7 +70,12 @@ jobs:
         env:
           SUCCESS: "Ansible playbook completed successfully."
           ERROR: "Ansible playbook failed!"
-        run: run-with-summary docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} --extra-vars vars.ci.yml
+        run: |
+          run-with-summary \
+            docker compose exec operations \
+              ansible-playbook ${ANSIBLE_PLAYBOOK} \
+                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} \
+                --extra-vars @vars.ci.yml
 
       - name: "Wait for all jobs to complete."
         env: 
