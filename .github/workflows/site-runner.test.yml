@@ -75,8 +75,7 @@ jobs:
           run-with-summary \
             docker compose exec operations \
               ansible-playbook ${ANSIBLE_PLAYBOOK} \
-                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} \
-                --extra-vars @vars.ci.yml
+                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
       - name: "Wait for all jobs to complete."
         env: 
