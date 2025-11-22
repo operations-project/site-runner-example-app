@@ -2,7 +2,8 @@
 # Ansible hosts file.
 # This is standard Ansible inventory in INI format.
 # Lives at /etc/ansible/hosts
-# This file isn't strictly required if you have other inventory files.
+# This is a good way to tell a server who it is. Use ansible_connection=local
+# so that ansible-playbook runs from this server run locally.
 #
 [operations_host_ddev]
 server.company.com ansible_connection=local
