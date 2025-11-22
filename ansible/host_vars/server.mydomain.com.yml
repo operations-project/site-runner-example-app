@@ -1,3 +1,0 @@
-# See example https://github.com/operations-project/ansible-collection-site-runner/blob/main/ansible/host_vars/host.example.yml
-operations_github_runners:
-  - runner_repo: operations-project/site-runner-example-app

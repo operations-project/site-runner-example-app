@@ -1,2 +1,8 @@
+#
+# Ansible hosts file.
+# This is standard Ansible inventory in INI format.
+# Lives at /etc/ansible/hosts
+# This file isn't strictly required if you have other inventory files.
+#
 [operations_host_ddev]
-server.mydomain.com ansible_connection=local
+server.company.com ansible_connection=local
