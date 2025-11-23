@@ -20,8 +20,7 @@ operations_host_ddev:
       # The github repos to install on this server.
       # Each of these projects will get a github self-hosted runner.
       operations_github_runners:
-        - runner_repo: thinkdrop/thinkdrop.net
-        - runner_repo: thinkdrop/launchpad
+        - runner_repo: operations-project/site-runner-example-app
 
       # GitHub API token with admin:write access to the git repos.
       # https://github.com/settings/personal-access-tokens
