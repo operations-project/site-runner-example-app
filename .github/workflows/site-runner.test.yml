@@ -54,11 +54,12 @@ jobs:
           docker compose up -d --quiet-pull
           docker-compose exec operations chmod 0400 /etc/shadow
 
-      # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
-      # - name: Set ansible variables
-      #   run: |
-      #     echo "operations_known_hosts: \"${{ secrets.SSH_KNOWN_HOSTS }}\"" > vars.ci.yml
-      #     cat vars.ci.yml
+       # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
+      - name: Set ansible variables
+        run: |
+          echo "operations_platform_ssh_private_key: |" > vars.ci.yml 
+          echo "  ${{ secrets.SSH_PRIVATE_KEY }}" >> vars.ci.yml
+          cat vars.ci.yml
 
       - name: Inventory
         run: run-with-summary docker compose exec operations ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
@@ -75,7 +76,8 @@ jobs:
           run-with-summary \
             docker compose exec operations \
               ansible-playbook ${ANSIBLE_PLAYBOOK} \
-                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
+                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} \
+                --extra-vars @vars.ci.yml 
 
       - name: "Wait for all jobs to complete."
         env: 
