@@ -57,8 +57,7 @@ jobs:
        # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
       - name: Set ansible variables
         run: |
-          echo "operations_platform_ssh_private_key: >" > vars.ci.yml 
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" >> vars.ci.yml
+          echo "operations_platform_ssh_private_key: \"${{ secrets.SSH_PRIVATE_KEY }}\"" > vars.ci.yml 
           cat vars.ci.yml
 
       - name: Inventory
