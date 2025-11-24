@@ -66,17 +66,19 @@ jobs:
           SUCCESS: "Ansible inventory"
           ERROR: "Ansible inventory list failed"
           HIDE: true
-          
+
       - name: Playbook
         env:
           SUCCESS: "Ansible playbook completed successfully."
           ERROR: "Ansible playbook failed!"
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           run-with-summary \
             docker compose exec operations \
               ansible-playbook ${ANSIBLE_PLAYBOOK} \
                 --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN} \
-                --extra-vars @vars.ci.yml 
+                --extra-vars @vars.ci.yml \
+                --extra-vars "operations_platform_ssh_private_key=\"{{ lookup('env', 'SSH_PRIVATE_KEY') }}\""
 
       - name: "Wait for all jobs to complete."
         env: 
