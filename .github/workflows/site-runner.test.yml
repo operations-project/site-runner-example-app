@@ -78,11 +78,6 @@ jobs:
               ansible-playbook ${ANSIBLE_PLAYBOOK} \
                 --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
-      # Enable SSH agent to allow preview sites to clone.
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: "Wait for all jobs to complete."
         env: 
           REPO: ${{ github.repository }}
