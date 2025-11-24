@@ -131,3 +131,7 @@ jobs:
       # Will be saved to .ddev/config.zzz.runner.yaml
       # See your project's .ddev/config.yaml file for examples.
       ddev_config: |
+
+      # To run an SSH agent during the deploy and prepare data steps, add a private key here.
+      # If left blank, you'll have to manually add your private key to the runner before running this workflow.
+      ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
