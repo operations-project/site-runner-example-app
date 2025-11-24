@@ -5,3 +5,13 @@
 operations_admin_users:
   - jonpugh
 
+# Load SSH private key from environment variable SSH_PRIVATE_KEY.
+# When running on github actions, this variable will be set, loaded from github secrets.
+# See site-runner.test.yml
+#
+# If running manually, set SSH_PRIVATE_KEY env var if you want ansible-playbook to install it.
+# You can also just leave this out and figure out your own key management.
+#
+# This key will be written to the platform user's authorized_keys file.
+# Site codebases will be cloned with this key.
+operations_platform_ssh_private_key: {{ lookup('env', 'SSH_PRIVATE_KEY') }}
