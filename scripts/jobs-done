@@ -25,5 +25,12 @@ else
 
 fi
 
-gh api /repos/$REPO/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs \
-  | jq -e "$JQ"
+JOBS=$(gh api /repos/$REPO/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs \
+  | jq -e "$JQ")
+
+if [[ -n $JOBS ]]; then
+  echo "Jobs are still running."
+  exit 1
+else
+  echo "Jobs done!"
+fi
