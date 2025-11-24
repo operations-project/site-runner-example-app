@@ -92,7 +92,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           OUTPUT: all
         run: |
-          cat /var/platform/.ssh/id_rsa
           wait-for ./scripts/jobs-done
     
   create-site:
