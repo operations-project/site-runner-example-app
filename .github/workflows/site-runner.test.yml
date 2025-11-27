@@ -85,7 +85,7 @@ jobs:
           ATTEMPT: ${{ github.run_attempt }}
           EXCLUDE_JOB_NAME: ${{ github.job }}
           GH_TOKEN: ${{ github.token }}
-          OUTPUT: all
+          TIMEOUT: 600
         run: |
           wait-for ./scripts/jobs-done
     
