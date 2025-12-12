@@ -13,6 +13,12 @@ env:
   # To install github runners automatically, you need a personal access token with admin:write permissions on your repository.
   GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
 
+  # The playbook to run.
+  # You can use the one included in the site-runn ansible roles or make your own.
+  # ANSIBLE_PLAYBOOK: ansible/site-runner/playbook.yml
+  ANSIBLE_PLAYBOOK: ansible/playbook.example.yml
+  RUNNER_NAME: platform@server.mysite.com
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
   cancel-in-progress: false
@@ -22,10 +28,30 @@ jobs:
     name: Launch test runner
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: 'operations-project/github-runner-starter'
-          ref: 'v1.2.1'
+
+      # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
+      - name: Set ansible variables
+        run: |
+          echo "operations_platform_ssh_private_key: \"${{ secrets.SSH_PRIVATE_KEY }}\"" > vars.ci.yml 
+          cat vars.ci.yml
+
+      - name: Inventory
+        run: run-with-summary ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
+        env:
+          SUCCESS: "Ansible inventory"
+          ERROR: "Ansible inventory list failed"
+          HIDE: true
+
+      - name: Playbook
+        env:
+          SUCCESS: "Ansible playbook completed successfully."
+          ERROR: "Ansible playbook failed!"
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          run-with-summary \
+            docker compose exec operations \
+              ansible-playbook ${ANSIBLE_PLAYBOOK} \
+                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
       # Kick off the runner script over and over until there are no more queued jobs.
       # Each runner is --ephemeral, runs one job. 
@@ -56,16 +82,16 @@ jobs:
       ddev_project_name: ourproject.pr${{ github.event.number }}
 
       # Used to create a system domain.
-      ddev_project_tld: sites.thinkdrop.net
+      ddev_project_tld: sites.server.mysite.com
 
       # Tell the remote workflow what to run on.
-      github_runs_on: github.actions.runner.${{ github.run_id }}
+      github_runs_on: platform@server.mysite.com
 
       # Define the github environment name, to be displayed in the UI.
       github_environment_name: pr${{ github.event.number }}
 
       # Define a github environment url, a link to be shown on the pull request.
-      github_environment_url: http://pr${{ github.event.number }}.sites.thinkdrop.net
+      github_environment_url: http://pr${{ github.event.number }}.sites.server.mysite.com
 
       # To persist a site's data, set "run_prepare_command" to false.
       run_prepare_command: true
@@ -78,7 +104,7 @@ jobs:
       # Will be saved to .ddev/config.zzz.runner.yaml
       ddev_config: |
         additional_fqdns:
-          - admin.pr${{ github.event.number }}.sites.thinkdrop.net
+          - admin.pr${{ github.event.number }}.sites.server.mysite.com
           - ddev-runner.ddev.site
 
   run-command:
