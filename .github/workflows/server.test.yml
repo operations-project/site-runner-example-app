@@ -55,9 +55,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           run-with-summary \
-            docker compose exec operations \
-              ansible-playbook ${ANSIBLE_PLAYBOOK} \
-                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
+            ansible-playbook ${ANSIBLE_PLAYBOOK} \
+              --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
       # Kick off the runner script over and over until there are no more queued jobs.
       # Each runner is --ephemeral, runs one job. 
