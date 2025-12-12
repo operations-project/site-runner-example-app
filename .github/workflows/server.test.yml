@@ -29,6 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      # run-with-summary, etc
+      - uses: jonpugh/goatscripts@main
+
       # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
       - name: Set ansible variables
         run: |
