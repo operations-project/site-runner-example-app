@@ -28,6 +28,7 @@ jobs:
     name: Launch test runner
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
 
       # run-with-summary, etc
       - uses: jonpugh/goatscripts@main
