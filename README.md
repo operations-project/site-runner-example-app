@@ -39,4 +39,4 @@ For example, to use github secrets, you can pass it on the command line in your 
 ansible-playbook --extra-vars operations_github_api_token=${{ secrets.REPO_ADMIN_TOKEN }}
 ```
 
-See [`site-runner.test.yml`](./.github/workflows/site-runner.test.yml#53)
+See [`server.test.yml`](./.github/workflows/server.yml#53)
