@@ -11,7 +11,7 @@ on:
 
 env:
   # To install github runners automatically, you need a personal access token with admin:write permissions on your repository.
-  GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
+  RUNNER_GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
 
   # The playbook to run.
   # You can use the one included in the site-runn ansible roles or make your own.
