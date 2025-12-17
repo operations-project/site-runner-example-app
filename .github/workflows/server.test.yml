@@ -92,7 +92,7 @@ jobs:
     with:
 
       # Configure your site  here.
-      git_root: /var/platform/ourproject/pr${{ github.event.number }}
+      git_root: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
       
       # Use the http URL.
       git_repository: ${{ github.event.repository.clone_url }}
@@ -131,7 +131,7 @@ jobs:
     uses: operations-project/github-action-ddev-runner/.github/workflows/operations.site.command.yml@feature/reusable-workflows
     needs: create-site
     with:
-      working_directory: /var/platform/ourproject/pr${{ github.event.number }}
+      working_directory: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
       github_runs_on: platform@server.mydomain.com
       command: ddev status
       env: |
@@ -158,5 +158,5 @@ jobs:
     uses: operations-project/github-action-ddev-runner/.github/workflows/operations.site.destroy.ddev.yml@feature/reusable-workflows
     needs: test-site
     with:
-      git_root: /var/platform/ourproject/pr${{ github.event.number }}
+      git_root: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
       github_runs_on: platform@server.mydomain.com
