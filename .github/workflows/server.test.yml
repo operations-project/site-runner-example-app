@@ -35,14 +35,31 @@ jobs:
       # run-with-summary, etc
       - uses: jonpugh/goatscripts@main
 
+      - name: Install docker-compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.24.0'
+
+      - name: Information
+        run: |
+          docker-compose --version
+
       # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
       - name: Set ansible variables
         run: |
           echo "operations_platform_ssh_private_key: \"${{ secrets.SSH_PRIVATE_KEY }}\"" > vars.ci.yml 
           cat vars.ci.yml
 
+      - name: Start Containers
+        run: |
+          docker compose up -d --quiet-pull
+          docker-compose exec operations chmod 0400 /etc/shadow
+
       - name: Inventory
-        run: run-with-summary ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
+        run: |
+          run-with-summary \
+            docker-compose exec operations \
+              ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
         env:
           SUCCESS: "Ansible inventory"
           ERROR: "Ansible inventory list failed"
@@ -55,8 +72,9 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           run-with-summary \
-            ansible-playbook ${ANSIBLE_PLAYBOOK} \
-              --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
+            docker-compose exec operations \
+              ansible-playbook ${ANSIBLE_PLAYBOOK} \
+                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
       # Kick off the runner script over and over until there are no more queued jobs.
       # Each runner is --ephemeral, runs one job. 
