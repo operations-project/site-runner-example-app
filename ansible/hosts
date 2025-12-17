@@ -6,4 +6,4 @@
 # so that ansible-playbook runs from this server run locally.
 #
 [operations_host_ddev]
-server.company.com ansible_connection=local
+server.mydomain.com ansible_connection=local
