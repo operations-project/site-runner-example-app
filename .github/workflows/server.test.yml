@@ -11,13 +11,13 @@ on:
 
 env:
   # To install github runners automatically, you need a personal access token with admin:write permissions on your repository.
-  GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
+  RUNNER_GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
 
   # The playbook to run.
   # You can use the one included in the site-runn ansible roles or make your own.
   # ANSIBLE_PLAYBOOK: ansible/site-runner/playbook.yml
   ANSIBLE_PLAYBOOK: ansible/playbook.example.yml
-  RUNNER_NAME: platform@server.mysite.com
+  RUNNER_NAME: platform@server.mydomain.com
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
@@ -35,14 +35,31 @@ jobs:
       # run-with-summary, etc
       - uses: jonpugh/goatscripts@main
 
+      - name: Install docker-compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.24.0'
+
+      - name: Information
+        run: |
+          docker-compose --version
+
       # Site runner ansible roles now sets SSH config to allow hosts to become known on first connection.
       - name: Set ansible variables
         run: |
           echo "operations_platform_ssh_private_key: \"${{ secrets.SSH_PRIVATE_KEY }}\"" > vars.ci.yml 
           cat vars.ci.yml
 
+      - name: Start Containers
+        run: |
+          docker compose up -d --quiet-pull
+          docker-compose exec operations chmod 0400 /etc/shadow
+
       - name: Inventory
-        run: run-with-summary ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
+        run: |
+          run-with-summary \
+            docker-compose exec operations \
+              ansible-playbook ${ANSIBLE_PLAYBOOK} --list-hosts
         env:
           SUCCESS: "Ansible inventory"
           ERROR: "Ansible inventory list failed"
@@ -55,22 +72,20 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           run-with-summary \
-            ansible-playbook ${ANSIBLE_PLAYBOOK} \
-              --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
+            docker-compose exec operations \
+              ansible-playbook ${ANSIBLE_PLAYBOOK} \
+                --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
-      # Kick off the runner script over and over until there are no more queued jobs.
-      # Each runner is --ephemeral, runs one job. 
-      - name: "Launch runner script."
+      - name: Run jobs
+        env: 
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT: ${{ github.run_attempt }}
+          JOB_NAME: ${{ github.job }}
+          GH_TOKEN: ${{ github.token }}
+          TIMEOUT: 600
         run: |
-          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
-            sleep 2
-            ./github-runner-starter \
-            --run \
-            --name=github.actions.runner.${{ github.run_id }}.${{ matrix.runner }} \
-            --labels=github.actions.runner.${{ github.run_id }} \
-            --config-sh-options=--ephemeral
-            sleep 2
-          done
+          wait-for ./scripts/jobs-done
 
   create-site:
     name: Create Preview Site
@@ -78,7 +93,7 @@ jobs:
     with:
 
       # Configure your site  here.
-      git_root: /home/runner/ourproject/pr${{ github.event.number }}
+      git_root: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
       
       # Use the http URL.
       git_repository: ${{ github.event.repository.clone_url }}
@@ -87,16 +102,16 @@ jobs:
       ddev_project_name: ourproject.pr${{ github.event.number }}
 
       # Used to create a system domain.
-      ddev_project_tld: sites.server.mysite.com
+      ddev_project_tld: sites.server.mydomain.com
 
       # Tell the remote workflow what to run on.
-      github_runs_on: platform@server.mysite.com
+      github_runs_on: platform@server.mydomain.com
 
       # Define the github environment name, to be displayed in the UI.
       github_environment_name: pr${{ github.event.number }}
 
       # Define a github environment url, a link to be shown on the pull request.
-      github_environment_url: http://pr${{ github.event.number }}.sites.server.mysite.com
+      github_environment_url: http://pr${{ github.event.number }}.sites.server.mydomain.com
 
       # To persist a site's data, set "run_prepare_command" to false.
       run_prepare_command: true
@@ -109,7 +124,7 @@ jobs:
       # Will be saved to .ddev/config.zzz.runner.yaml
       ddev_config: |
         additional_fqdns:
-          - admin.pr${{ github.event.number }}.sites.server.mysite.com
+          - admin.pr${{ github.event.number }}.sites.server.mydomain.com
           - ddev-runner.ddev.site
 
   run-command:
@@ -117,8 +132,8 @@ jobs:
     uses: operations-project/github-action-ddev-runner/.github/workflows/operations.site.command.yml@feature/reusable-workflows
     needs: create-site
     with:
-      working_directory: /home/runner/ourproject/pr${{ github.event.number }}
-      github_runs_on: github.actions.runner.${{ github.run_id }}
+      working_directory: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
+      github_runs_on: platform@server.mydomain.com
       command: ddev status
       env: |
         SUCCESS="DDEV Status"
@@ -127,7 +142,7 @@ jobs:
   test-site:
     name: Run tests
     needs: create-site
-    runs-on: github.actions.runner.${{ github.run_id }}
+    runs-on: platform@server.mydomain.com
     steps:
 
       - uses: jonpugh/goatscripts@main
@@ -144,5 +159,5 @@ jobs:
     uses: operations-project/github-action-ddev-runner/.github/workflows/operations.site.destroy.ddev.yml@feature/reusable-workflows
     needs: test-site
     with:
-      git_root: /home/runner/ourproject/pr${{ github.event.number }}
-      github_runs_on: github.actions.runner.${{ github.run_id }}
+      git_root: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
+      github_runs_on: platform@server.mydomain.com
