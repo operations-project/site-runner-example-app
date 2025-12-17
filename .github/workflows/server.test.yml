@@ -76,19 +76,15 @@ jobs:
               ansible-playbook ${ANSIBLE_PLAYBOOK} \
                 --extra-vars operations_github_api_token=${RUNNER_GITHUB_TOKEN}
 
-      # Kick off the runner script over and over until there are no more queued jobs.
-      # Each runner is --ephemeral, runs one job. 
-      - name: "Launch runner script."
+      - name: Run jobs
+        env: 
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT: ${{ github.run_attempt }}
+          JOB_NAME: ${{ github.job }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
-            sleep 2
-            ./github-runner-starter \
-            --run \
-            --name=github.actions.runner.${{ github.run_id }}.${{ matrix.runner }} \
-            --labels=github.actions.runner.${{ github.run_id }} \
-            --config-sh-options=--ephemeral
-            sleep 2
-          done
+          wait-for ./scripts/jobs-done
 
   create-site:
     name: Create Preview Site
