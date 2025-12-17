@@ -83,6 +83,7 @@ jobs:
           ATTEMPT: ${{ github.run_attempt }}
           JOB_NAME: ${{ github.job }}
           GH_TOKEN: ${{ github.token }}
+          TIMEOUT: 600
         run: |
           wait-for ./scripts/jobs-done
 
