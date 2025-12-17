@@ -15,7 +15,7 @@ operations_host_ddev:
 
     # Your server's full name.
     # It will be helpful to set a DNS record for this.
-    server.company.com:
+    server.mydomain.com:
 
       # The github repos to install on this server.
       # Each of these projects will get a github self-hosted runner.
