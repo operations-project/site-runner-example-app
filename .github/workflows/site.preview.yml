@@ -19,6 +19,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+
+  # To allow sites to exist across multiple jobs, we can use a runner to launch other runners.
+  # Once you have this workflow going on a site runner server, you can remove the create-server job.
+  create-server:
+    name: Launch test runner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'operations-project/github-runner-starter'
+          ref: 'v1.2.1'
+
+      # Kick off the runner script over and over until there are no more queued jobs.
+      - name: "Launch runner script."
+
+        run: |
+          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
+            sleep 2
+            ./github-runner-starter \
+            --run \
+            --name=github.actions.runner.${{ github.run_id }}.${{ matrix.runner }} \
+            --labels=github.actions.runner.${{ github.run_id }} \
+            --config-sh-options=--ephemeral
+            sleep 2
+          done
+
   create-site:
     name: Create Preview Site
     uses: operations-project/github-action-ddev-runner/.github/workflows/operations.site.deploy.ddev.yml@feature/reusable-workflows
@@ -37,7 +63,8 @@ jobs:
       ddev_project_tld: sites.thinkdrop.net
 
       # Tell the remote workflow what to run on.
-      github_runs_on: ubuntu-latest
+      # Once a site runner server is installed, use that server's name (eg. platform@server.mydomain.com)
+      github_runs_on: github.actions.runner.${{ github.run_id }}
 
       # Define the github environment name, to be displayed in the UI.
       github_environment_name: pr${{ github.event.number }}
