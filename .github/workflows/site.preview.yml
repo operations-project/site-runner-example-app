@@ -100,7 +100,7 @@ jobs:
 
   test-site:
     name: Run tests
-    needs: create-site
+    needs: run-command
     runs-on: github.actions.runner.${{ github.run_id }}
     steps:
 
