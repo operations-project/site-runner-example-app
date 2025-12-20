@@ -4,7 +4,7 @@
 services:
   operations:
     image: geerlingguy/docker-${DISTRO:-rockylinux10}-ansible:latest
-    hostname: ${DOCKER_HOSTNAME:-server.mydomain.com}
+    hostname: ${DOCKER_SERVER_HOSTNAME:-server.docker.host}
     cgroup: host
     cgroup_parent: docker.slice
     privileged: true
