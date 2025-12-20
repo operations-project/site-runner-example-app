@@ -12,7 +12,7 @@ on:
 
 env:
   # To install github runners automatically, you need a personal access token with admin:write permissions on your repository.
-  RUNNER_GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
+  GITHUB_TOKEN: "${{ secrets.OUR_GITHUB_TOKEN_RUNNER_ADMIN }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number }}
@@ -34,7 +34,7 @@ jobs:
       - name: "Launch runner script."
 
         run: |
-          while [[ $(curl -s -H "Authorization: token ${RUNNER_GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
+          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
             sleep 2
             ./github-runner-starter \
             --run \
