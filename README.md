@@ -1,4 +1,4 @@
-# site-runner-example-app
+# Site Runner Example App
 An example repo containing server configuration and app code.
 
 ## Instructions
