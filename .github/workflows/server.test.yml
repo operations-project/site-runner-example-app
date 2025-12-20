@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   create-server:
-    name: Launch test runner
+    name: Configure Server
     runs-on: ubuntu-latest
     strategy:
       matrix:
