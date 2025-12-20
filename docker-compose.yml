@@ -3,7 +3,7 @@
 ---
 services:
   operations:
-    image: geerlingguy/docker-${DISTRO:-rockylinux10}-ansible:latest
+    image: geerlingguy/docker-${DISTRO:-rockylinux9}-ansible:latest
     hostname: ${DOCKER_SERVER_HOSTNAME:-server.docker.host}
     cgroup: host
     cgroup_parent: docker.slice
