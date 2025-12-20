@@ -19,31 +19,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # This emulates a persistent server. The ddev.site.deploy.yml jobs require one.
-  # This job runs the rest. It will stay running until the last job is complete.
-  create-server:
-    name: Launch test runner
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: 'operations-project/github-runner-starter'
-          ref: 'v1.2.1'
-
-      # Kick off the runner script over and over until there are no more queued jobs.
-      - name: "Launch runner script."
-
-        run: |
-          while [[ $(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" | jq -r '.jobs[] | select(.status=="queued") | .id' | wc -l) -gt 0 ]]; do
-            sleep 2
-            ./github-runner-starter \
-            --run \
-            --name=github.actions.runner.${{ github.run_id }}.${{ matrix.runner }} \
-            --labels=github.actions.runner.${{ github.run_id }} \
-            --config-sh-options=--ephemeral
-            sleep 2
-          done
-
   create-site:
     name: Create Preview Site
     uses: operations-project/github-action-ddev-runner/.github/workflows/operations.site.deploy.ddev.yml@feature/reusable-workflows
@@ -62,7 +37,7 @@ jobs:
       ddev_project_tld: sites.thinkdrop.net
 
       # Tell the remote workflow what to run on.
-      github_runs_on: github.actions.runner.${{ github.run_id }}
+      github_runs_on: ubuntu-latest
 
       # Define the github environment name, to be displayed in the UI.
       github_environment_name: pr${{ github.event.number }}
