@@ -74,6 +74,7 @@ jobs:
         run: |
           echo "DISTRO=${{ matrix.os }}" > .env
           echo "DOCKER_SERVER_HOSTNAME=${{ matrix.server_hostname }}" > .env
+          cat .env
 
       - name: Start Containers
         run: |
