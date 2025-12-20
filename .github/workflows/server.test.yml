@@ -17,6 +17,7 @@ env:
   # You can use the one included in the site-runn ansible roles or make your own.
   # ANSIBLE_PLAYBOOK: ansible/site-runner/playbook.yml
   ANSIBLE_PLAYBOOK: ansible/playbook.example.yml
+  SERVER_NAME: server.mydomain.com
   RUNNER_NAME: platform@server.mydomain.com
 
 concurrency:
@@ -27,6 +28,10 @@ jobs:
   create-server:
     name: Launch test runner
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - rockylinux9
     steps:
       - uses: actions/checkout@v6
         with:
@@ -53,10 +58,11 @@ jobs:
       - name: Set runner name
         if: github.event_name == 'pull_request'
         run: |
-          echo "OPERATIONS_ENVIRONMENT_NAME=server.pr${{ github.event.number }}.${{ matrix.os }}.server.mydomain.com" >> "$GITHUB_ENV"
+          echo "OPERATIONS_ENVIRONMENT_NAME=server.pr${{ github.event.number }}.${{ matrix.os }}.${{ env.SERVER_NAME }}" >> "$GITHUB_ENV"
 
       - name: Set variables
         run: |
+          echo "DISTRO=${{ matrix.os }}" > .env
           echo "DOCKER_HOSTNAME=${{ env.OPERATIONS_ENVIRONMENT_NAME }}" > .env
 
       - name: Start Containers
@@ -133,7 +139,7 @@ jobs:
       # Will be saved to .ddev/config.zzz.runner.yaml
       ddev_config: |
         additional_fqdns:
-          - admin.pr${{ github.event.number }}.sites.server.mydomain.com
+          - admin.pr${{ github.event.number }}.sites.${{ env.SERVER_NAME }}
           - ddev-runner.ddev.site
 
   run-command:
@@ -142,7 +148,7 @@ jobs:
     needs: create-site
     with:
       working_directory: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
-      github_runs_on: platform@server.mydomain.com
+      github_runs_on: platform@${{ env.SERVER_NAME }}
       command: ddev status
       env: |
         SUCCESS="DDEV Status"
@@ -151,7 +157,7 @@ jobs:
   test-site:
     name: Run tests
     needs: create-site
-    runs-on: platform@server.mydomain.com
+    runs-on: platform@${{ env.SERVER_NAME }}
     steps:
 
       - uses: jonpugh/goatscripts@main
@@ -169,4 +175,4 @@ jobs:
     needs: test-site
     with:
       git_root: /var/platform/Sites/${{ github.repository }}/pr${{ github.event.number }}
-      github_runs_on: platform@server.mydomain.com
+      github_runs_on: platform@${{ env.SERVER_NAME }}
