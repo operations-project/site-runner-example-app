@@ -50,6 +50,15 @@ jobs:
           echo "operations_platform_ssh_private_key: \"${{ secrets.SSH_PRIVATE_KEY }}\"" > vars.ci.yml 
           cat vars.ci.yml
 
+      - name: Set runner name
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "OPERATIONS_ENVIRONMENT_NAME=server.pr${{ github.event.number }}.${{ matrix.os }}.server.mydomain.com" >> "$GITHUB_ENV"
+
+      - name: Set variables
+        run: |
+          echo "DOCKER_HOSTNAME=${{ env.OPERATIONS_ENVIRONMENT_NAME }}" > .env
+
       - name: Start Containers
         run: |
           docker compose up -d --quiet-pull
