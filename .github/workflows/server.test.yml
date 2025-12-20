@@ -32,7 +32,7 @@ jobs:
       matrix:
         include:
           - os: rockylinux9
-            server_hostname: server.pr${{ github.event.number }}.${{ matrix.os }}.${{ vars.SERVER_HOSTNAME }}
+            server_hostname: server.pr${{ github.event.number }}.rockylinux9.${{ vars.SERVER_HOSTNAME }}
     steps:
       - uses: actions/checkout@v6
         with:
