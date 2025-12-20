@@ -109,7 +109,7 @@ jobs:
           ERROR: "Unable to load DDEV website. :x:"
         run: |
           run-with-summary curl https://ddev-runner.ddev.site
-          curl -s https://ddev-runner.ddev.site | grep "Hello World!"
+          curl -s https://ddev-runner.ddev.site | grep "HELLO WORLD"
 
   remove-site:
     name: Remove Site
