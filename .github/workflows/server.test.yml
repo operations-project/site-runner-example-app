@@ -30,8 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os:
-          - rockylinux9
+        include:
+          - os: rockylinux9
+            server_hostname: server.pr${{ github.event.number }}.${{ matrix.os }}.${{ vars.SERVER_HOSTNAME }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -63,11 +64,12 @@ jobs:
       - name: Set runner name
         if: github.event_name != 'pull_request'
         run: |
-          echo "DOCKER_SERVER_HOSTNAME=server.${{ github.refname }}.${{ matrix.os }}.${{ vars.SERVER_HOSTNAME }}" >> "$GITHUB_ENV"
+          echo "DOCKER_SERVER_HOSTNAME=${{ matrix.server_hostname }}" >> "$GITHUB_ENV"
 
       - name: Set variables
         run: |
           echo "DISTRO=${{ matrix.os }}" > .env
+          echo "DOCKER_SERVER_HOSTNAME=${{ matrix.server_hostname }}" > .env
 
       - name: Start Containers
         run: |
