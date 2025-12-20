@@ -12,6 +12,8 @@ services:
     volumes:
       - ./:/app
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-      
-      # We want it to work from local repo only.
-      # - ./ansible:/etc/ansible
+    environment:
+      - OPERATIONS_PLATFORM=yes
+    env_file:
+      - .env
+    build: ./
