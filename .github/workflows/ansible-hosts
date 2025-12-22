@@ -1,0 +1,2 @@
+[operations_host_ddev]
+server.mydomain.com ansible_connection=local

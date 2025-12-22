@@ -1,0 +1,59 @@
+#
+# This playbook was copied from the Site Runner Ansible repo: https://github.com/operations-project/ansible-collection-site-runner/blob/main/playbook.yml
+#
+# This grants you total control what happens on your server.
+# To use this playbook, just make sure the roles are available by setting roles_path or 
+# using the symlink.
+#
+---
+- name: Configure Server
+  hosts: all
+  become: true
+
+  pre_tasks:
+
+    # Set server hostnames to inventory hostname.
+    - name: "Set hostname for {{ ansible_nodename }} to {{ inventory_hostname }}."
+      hostname:
+        name: "{{ inventory_hostname }}"
+      when: inventory_hostname != ansible_nodename
+      register: result
+      until: result.failed != true
+      retries: 5
+      delay: 2
+
+    - name: Prerequisite Packages
+      package:
+        name:
+          - openssh-server
+          - git
+          - gpg
+
+  roles:
+    - role: geerlingguy.security
+      tags: system
+      vars:
+        security_sudoers_passwordless: "{{ [operations_control_user|default('control')] + operations_admin_users|default([]) }}"
+        security_ssh_allowed_users: "{{ [operations_control_user|default('control')] + [operations_platform_user|default('platform')] + operations_admin_users|default([]) }}"
+
+    - role: geerlingguy.github-users
+      tags: system
+      vars:
+        github_users: "{{ operations_admin_users | default([]) }}"
+
+- name: "Configure Hosting: DDEV"
+  hosts: operations_host_ddev
+  become: true
+
+  roles:
+    - role: geerlingguy.docker
+      tags: system
+
+    - role: operations.users
+      tags: operations
+
+    - role: operations.ddev
+      tags: operations, ddev
+
+    - role: operations.runner
+      tags: operations, runner

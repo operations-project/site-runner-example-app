@@ -1,0 +1,41 @@
+#
+# Example server inventory file.
+#
+
+# "All" Group
+# Put config that should be applied to all servers here.
+all:
+  vars:
+    operations_admin_users:
+      - this_user_is_super
+
+# DDEV Site Runners
+operations_host_ddev:
+  vars:
+    # The github repos to install on this server.
+    # Each of these projects will get a github self-hosted runner.
+    operations_github_runners:
+      - runner_repo: operations-project/site-runner-example-app
+
+  # To have control over what repo is used on what server, set var operations_github_runners on specific hosts.
+#  hosts:
+#
+#    # Your server's full name.
+#    # It will be helpful to set a DNS record for this.
+#    server.mydomain.com:
+#
+#      # The github repos to install on this server.
+#      # Each of these projects will get a github self-hosted runner.
+#      operations_github_runners:
+#        - runner_repo: operations-project/site-runner-example-app
+#
+#      # GitHub API token with admin:write access to the git repos.
+#      # https://github.com/settings/personal-access-tokens
+#      # DO NOT COMMIT THIS TO GIT.
+#      # There are many ways to store your secrets in ansible.
+#      # If you are running `ansible-playbook` in a GitHub action, you can simply
+#      # add a GitHub secret to your repo or organization, then pass ${{ secrets.YOUR_GITHUB_SECRET }}
+#      # to ansible-playbook
+#      #   ansible-playbook playbook.yml --extra-vars operations_github_api_token=${{ secrets.YOUR_GITHUB_SECRET }} on the command line.
+#      # See .github/workflows/site-runner-test.yml line 78 for an example:
+#      operations_github_api_token: ""

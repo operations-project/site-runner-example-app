@@ -1,0 +1,3 @@
+[submodule "site-runner"]
+	path = ansible/site-runner
+	url = https://github.com/operations-project/ansible-collection-site-runner.git
