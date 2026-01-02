@@ -1,4 +1,5 @@
-# Site Runner Example App
+# Site Runner App Template
+
 An example repo containing server configuration and app code.
 
 ## Instructions
